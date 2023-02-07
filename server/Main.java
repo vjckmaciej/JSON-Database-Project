@@ -1,64 +1,47 @@
 package server;
 
-import java.util.Objects;
-import java.util.Scanner;
+import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 public class Main {
+    private static final int PORT = 2345;
 
     public static void main(String[] args) {
-
-        Database database = new Database();
-        Message mess1 = new Message("hi");
-
-        boolean flag = true;
-        while(flag) {
-            Scanner scanner = new Scanner(System.in);
-            String methodToCall = scanner.next();
-            int index;
-            String textOfMessageToSet;
-            if (Objects.equals(methodToCall, "exit")) {
-                flag = false;
-                return;
-            } else {
-                index = scanner.nextInt();
-                textOfMessageToSet = scanner.nextLine();
-                textOfMessageToSet = removeZero(textOfMessageToSet);
-                mess1.setMessageText(textOfMessageToSet);
+        System.out.println("Server started!");
+        try(ServerSocket server = new ServerSocket(PORT)) {
+            while (true) {
+                Session session = new Session(server.accept());
+                session.run(); //it doesnt create new thread but run code from session object within current thread
+                System.exit(0);
             }
-
-
-            switch (methodToCall) {
-                case "set":
-                    database.setMessage(index,mess1.getMessageText());
-                    break;
-                case "get":
-                    database.getMessage(index);
-                    break;
-                case "delete":
-                    database.deleteMessege(index);
-                    break;
-                case "exit":
-                    flag = false;
-                    break;
-            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
-    public static String removeZero(String str)
-    {
-        // Initially setting loop counter to 0
-        int i = 0;
-        while (i < str.length() && str.charAt(i) == ' ')
-            i++;
+}
 
-        // Converting string into StringBuffer object
-        // as strings are immutable
-        StringBuffer sb = new StringBuffer(str);
+class Session extends Thread {
+    private Socket socket;
 
-        // The StringBuffer replace function removes
-        // i characters from given index (0 here)
-        sb.replace(0, i, "");
+    public Session(Socket socketForClient) {
+        this.socket = socketForClient;
+    }
 
-        // Returning string after removing zeros
-        return sb.toString();
+    public void run() {
+        //System.out.println("Server started!");
+        try (
+                DataInputStream input = new DataInputStream(socket.getInputStream());
+                DataOutputStream output = new DataOutputStream(socket.getOutputStream())
+        ) {
+            String msg = input.readUTF();
+            System.out.println("Received: Give me a record # " + msg);
+
+            output.writeUTF(msg);
+            System.out.println("Sent: A record # " + msg + " was sent!");
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
