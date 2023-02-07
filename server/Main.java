@@ -29,7 +29,6 @@ class Session extends Thread {
     }
 
     public void run() {
-        //System.out.println("Server started!");
         try (
                 DataInputStream input = new DataInputStream(socket.getInputStream());
                 DataOutputStream output = new DataOutputStream(socket.getOutputStream())
