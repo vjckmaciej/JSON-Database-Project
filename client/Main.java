@@ -13,6 +13,8 @@ public class Main {
                 DataInputStream input = new DataInputStream(socket.getInputStream());
                 DataOutputStream output  = new DataOutputStream(socket.getOutputStream())
         ) {
+//            Scanner scanner = new Scanner(System.in);
+//            String msg = scanner.nextLine();
             String msg = "12";
 
             output.writeUTF(msg); // send a message to the server
