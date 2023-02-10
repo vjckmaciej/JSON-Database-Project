@@ -3,8 +3,6 @@ package server;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Objects;
-import java.util.Scanner;
 
 public class Main {
     private static final int PORT = 1235;
@@ -19,9 +17,6 @@ public class Main {
                 Session session = new Session(server.accept(),database);
                 session.run();
                 exitProgram = session.isFlagExit();//it doesnt create new thread but run code from session object within current thread
-                //session.join();
-//                server.close();
-//                System.exit(0);
             }
         } catch (IOException  e) {
             e.printStackTrace();
@@ -33,13 +28,8 @@ class Session extends Thread {
     private Socket socket;
     private Database database;
     DatabaseController databaseController = new DatabaseController();
-//    Database database = new Database();
 
     private boolean flagExit = false;
-
-    public boolean isFlagExit() {
-        return flagExit;
-    }
 
     public Session(Socket socketForClient, Database database) {
         this.database = database;
@@ -47,7 +37,6 @@ class Session extends Thread {
     }
 
     public void run() {
-//        do {
             try (
                     DataInputStream input = new DataInputStream(socket.getInputStream());
                     DataOutputStream output = new DataOutputStream(socket.getOutputStream())
@@ -59,23 +48,19 @@ class Session extends Thread {
                 if (arrayOfClientParameters.length >= 2) {
                     index = Integer.parseInt(arrayOfClientParameters[1]);
                 }
-                Command commandFromRequest;
                 switch (methodToCall) {
                     case "set":
                         StringBuilder sb = new StringBuilder();
                         for (int i = 2; i < arrayOfClientParameters.length; i++) {
                             sb.append(arrayOfClientParameters[i] + " ");
                         }
-                        commandFromRequest = new SetMessageCommand(database, index, sb.toString());
-                        output.writeUTF(commandFromRequest.execute()+ " " + database.getDatabase());
+                        databaseController.setCommand(new SetMessageCommand(database, index, sb.toString()));
                         break;
                     case "get":
-                        commandFromRequest = new GetMessageCommand(database, Integer.parseInt(arrayOfClientParameters[1]));
-                        output.writeUTF(commandFromRequest.execute()+ " " + database.getDatabase());
+                        databaseController.setCommand(new GetMessageCommand(database, index));
                         break;
                     case "delete":
-                        commandFromRequest = new DeleteMessageCommand(database, Integer.parseInt(arrayOfClientParameters[1]));
-                        output.writeUTF(commandFromRequest.execute()+ " " + database.getDatabase());
+                        databaseController.setCommand(new DeleteMessageCommand(database, index));
                         break;
                     case "exit":
                         output.writeUTF("OK");
@@ -83,12 +68,13 @@ class Session extends Thread {
                         socket.close();
                         break;
                 }
-                //output.writeUTF(msg);
+                output.writeUTF(databaseController.executeCommand());
             } catch (IOException e) {
                 e.printStackTrace();
             }
-//        } while (!flagExit);
+    }
+
+    public boolean isFlagExit() {
+        return flagExit;
     }
 }
-
-

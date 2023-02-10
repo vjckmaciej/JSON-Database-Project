@@ -7,20 +7,10 @@ public class Database {
     private final int CAPACITY = 1000;
     private final List<String> database = new ArrayList<>(CAPACITY);
 
-    private String messageText;
-
     public Database() {
         for (int i = 0; i < CAPACITY; i++) {
             database.add("");
         }
-    }
-
-    public List<String> getDatabase() {
-        return database;
-    }
-
-    public void setMessageText(String messageText) {
-        this.messageText = messageText;
     }
 
     public String getMessage(int index) {
@@ -30,12 +20,6 @@ public class Database {
             } else {
                 return database.get(index-1);
             }
-//            if (!database.get(index-1).isEmpty()) {
-//                System.out.println(database.get(index-1));
-//                return database.get(index-1);
-//            } else {
-//                return "ERROR";
-//            }
 
         } catch (IndexOutOfBoundsException e) {
             return "blad tutaj";
@@ -59,12 +43,6 @@ public class Database {
             return "OK";
         } catch (IndexOutOfBoundsException e) {
             return "ERROR";
-        }
-    }
-
-    public void printDatabaseMessages() {
-        for (String s : database) {
-            System.out.print(s);
         }
     }
 }

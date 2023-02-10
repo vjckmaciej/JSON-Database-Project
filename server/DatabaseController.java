@@ -7,7 +7,7 @@ public class DatabaseController {
         this.command = command;
     }
 
-    public void executeCommand() {
-        command.execute();
+    public String executeCommand() {
+        return command.execute();
     }
 }
