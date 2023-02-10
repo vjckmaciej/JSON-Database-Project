@@ -1,13 +1,13 @@
 package server;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 public class Database {
-    private final int CAPACITY = 100;
+    private final int CAPACITY = 1000;
     private final List<String> database = new ArrayList<>(CAPACITY);
+
+    private String messageText;
 
     public Database() {
         for (int i = 0; i < CAPACITY; i++) {
@@ -19,34 +19,46 @@ public class Database {
         return database;
     }
 
-    public void getMessage(int index) {
+    public void setMessageText(String messageText) {
+        this.messageText = messageText;
+    }
+
+    public String getMessage(int index) {
         try {
-            if (!database.get(index-1).isEmpty()) {
-                System.out.println(database.get(index-1));
+            if ("".equals(database.get(index-1))) {
+              return "ERROR";
             } else {
-                System.out.println("ERROR");
+                return database.get(index-1);
             }
+//            if (!database.get(index-1).isEmpty()) {
+//                System.out.println(database.get(index-1));
+//                return database.get(index-1);
+//            } else {
+//                return "ERROR";
+//            }
 
         } catch (IndexOutOfBoundsException e) {
-            System.out.println("ERROR");
+            return "blad tutaj";
         }
     }
 
-    public void setMessage(int index, String message) {
+    public String setMessage(int index, String message) {
         try {
             database.set(index-1, message);
-            System.out.println("OK");
+            return "OK";
+
         } catch (IndexOutOfBoundsException e) {
-            System.out.println("ERROR");
+            e.printStackTrace();
+            return "ERROR";
         }
     }
 
-    public void deleteMessege(int index) {
+    public String deleteMessege(int index) {
         try {
             database.set(index-1,"");
-            System.out.println("OK");
+            return "OK";
         } catch (IndexOutOfBoundsException e) {
-            System.out.println("ERROR");
+            return "ERROR";
         }
     }
 
