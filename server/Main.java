@@ -1,8 +1,12 @@
 package server;
 
+import com.google.gson.Gson;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Main {
     private static final int PORT = 1235;
@@ -16,7 +20,7 @@ public class Main {
             while (!exitProgram) {
                 Session session = new Session(server.accept(),database);
                 session.run();
-                exitProgram = session.isFlagExit();//it doesnt create new thread but run code from session object within current thread
+                exitProgram = session.isFlagExit();//it does not create new thread but run code from session object within current thread
             }
         } catch (IOException  e) {
             e.printStackTrace();
@@ -28,8 +32,11 @@ class Session extends Thread {
     private Socket socket;
     private Database database;
     DatabaseController databaseController = new DatabaseController();
-
     private boolean flagExit = false;
+
+    public boolean isFlagExit() {
+        return flagExit;
+    }
 
     public Session(Socket socketForClient, Database database) {
         this.database = database;
@@ -37,44 +44,38 @@ class Session extends Thread {
     }
 
     public void run() {
+//        do {
             try (
                     DataInputStream input = new DataInputStream(socket.getInputStream());
                     DataOutputStream output = new DataOutputStream(socket.getOutputStream())
             ) {
                 String msg = input.readUTF();
-                String[] arrayOfClientParameters = msg.split(" "); //parameters given in the command line when running client
-                String methodToCall = arrayOfClientParameters[0]; //crud operation on database
-                int index = 0; //index of cell we want to reach
-                if (arrayOfClientParameters.length >= 2) {
-                    index = Integer.parseInt(arrayOfClientParameters[1]);
-                }
-                switch (methodToCall) {
+                Gson gson = new Gson();
+                MessageCommand messageCommand = gson.fromJson(msg, MessageCommand.class);
+                Map<String,String> outputResponse = new HashMap<>();
+
+                switch (messageCommand.getType()) {
                     case "set":
-                        StringBuilder sb = new StringBuilder();
-                        for (int i = 2; i < arrayOfClientParameters.length; i++) {
-                            sb.append(arrayOfClientParameters[i] + " ");
-                        }
-                        databaseController.setCommand(new SetMessageCommand(database, index, sb.toString()));
+                        databaseController.setCommand(new SetMessageCommand(database, messageCommand.getKey(), messageCommand.getValue()));
                         break;
                     case "get":
-                        databaseController.setCommand(new GetMessageCommand(database, index));
+                        databaseController.setCommand(new GetMessageCommand(database, messageCommand.getKey()));
                         break;
                     case "delete":
-                        databaseController.setCommand(new DeleteMessageCommand(database, index));
+                        databaseController.setCommand(new DeleteMessageCommand(database, messageCommand.getKey()));
                         break;
                     case "exit":
-                        output.writeUTF("OK");
+                        outputResponse.put("response", "OK");
                         flagExit = true;
                         socket.close();
                         break;
                 }
-                output.writeUTF(databaseController.executeCommand());
+                String outputParam = gson.toJson(databaseController.executeCommand());
+                output.writeUTF(outputParam);
             } catch (IOException e) {
                 e.printStackTrace();
             }
     }
-
-    public boolean isFlagExit() {
-        return flagExit;
-    }
 }
+
+

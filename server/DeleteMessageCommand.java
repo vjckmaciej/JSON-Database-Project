@@ -1,16 +1,18 @@
 package server;
 
+import java.util.Map;
+
 public class DeleteMessageCommand implements Command {
     private Database database;
-    private int index;
+    private String key;
 
-    public DeleteMessageCommand(Database database, int index) {
+    public DeleteMessageCommand(Database database, String key) {
         this.database = database;
-        this.index = index;
+        this.key = key;
     }
 
     @Override
-    public String execute() {
-        return database.deleteMessege(this.index);
+    public Map<String, String> execute() {
+        return database.deleteMessege(this.key);
     }
 }

@@ -1,48 +1,41 @@
 package server;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Database {
-    private final int CAPACITY = 1000;
-    private final List<String> database = new ArrayList<>(CAPACITY);
+    private Map<String, String> database = new HashMap<>();
 
-    public Database() {
-        for (int i = 0; i < CAPACITY; i++) {
-            database.add("");
+    public Map<String, String> getMessage(String key) {
+        Map<String, String> returnValues = new HashMap<>();
+        if (database.containsKey(key) && !database.get(key).isEmpty()) {
+                returnValues.put("response", "OK");
+                returnValues.put("value", database.get(key));
+        } else {
+                returnValues.put("response", "ERROR");
+                returnValues.put("reason", "No such key");
         }
+        return returnValues;
     }
 
-    public String getMessage(int index) {
-        try {
-            if ("".equals(database.get(index-1))) {
-              return "ERROR";
-            } else {
-                return database.get(index-1);
-            }
-
-        } catch (IndexOutOfBoundsException e) {
-            return "blad tutaj";
-        }
+    public Map<String, String> setMessage(String key, String message) {
+        Map<String, String> returnValues = new HashMap<>();
+        database.put(key, message);
+        returnValues.put("response", "OK");
+        return returnValues;
     }
 
-    public String setMessage(int index, String message) {
-        try {
-            database.set(index-1, message);
-            return "OK";
-
-        } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
-            return "ERROR";
+    public Map<String, String> deleteMessege(String key) {
+        Map<String, String> returnValues = new HashMap<>();
+        if (database.containsKey(key)) {
+            database.remove(key);
+            returnValues.put("response", "OK");
+        } else {
+            returnValues.put("response", "ERROR");
+            returnValues.put("reason", "No such key");
         }
-    }
-
-    public String deleteMessege(int index) {
-        try {
-            database.set(index-1,"");
-            return "OK";
-        } catch (IndexOutOfBoundsException e) {
-            return "ERROR";
-        }
+        return returnValues;
     }
 }

@@ -2,26 +2,37 @@ package client;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import com.google.gson.Gson;
 
 public class Main {
     @Parameter(names= "-t", description = "set/get/delete/exit")
     private String crudOperation;
-    @Parameter(names= "-i", description = "index")
-    private int index;
+    @Parameter(names= "-k", description = "key")
+    private String key;
 
-    @Parameter(names= "-m", description = "message")
-    private String message = "";
+    @Parameter(names= "-v", description = "message")
+    private String message;
 
     private static final String SERVER_ADDRESS = "127.0.0.1";
     private static final int PORT = 1235;
+    private static String outputParameters;
     public static void main(String ... argv) {
+        Gson gson = new Gson();
+        Map<String, String> parameters = new HashMap<>();
         Main main = new Main();
         JCommander.newBuilder()
                 .addObject(main)
                 .build()
                 .parse(argv);
+        parameters.put("type", main.crudOperation);
+        parameters.put("key", String.valueOf(main.key));
+        parameters.put("value", main.message);
+        outputParameters = gson.toJson(parameters);
         main.run();
     }
 
@@ -33,24 +44,8 @@ public class Main {
                 DataInputStream input = new DataInputStream(socket.getInputStream());
                 DataOutputStream output = new DataOutputStream(socket.getOutputStream())
         ) {
-            switch (crudOperation) {
-                case "set":
-                    output.writeUTF(crudOperation + " " + index + " " + message);
-                    System.out.println("Sent: " + crudOperation + " " + index + " " + message);
-                    break;
-                case "get":
-                    output.writeUTF(crudOperation + " " + index);
-                    System.out.println("Sent: " + crudOperation + " " + index);
-                    break;
-                case "delete":
-                    output.writeUTF(crudOperation + " " + index);
-                    System.out.println("Sent: " + crudOperation + " " + index);
-                    break;
-                case "exit":
-                    output.writeUTF(crudOperation);
-                    System.out.println("Sent: " + crudOperation);
-                    break;
-            }
+            System.out.println("Sent: " + outputParameters);
+            output.writeUTF(outputParameters);
             String receivedMsg = input.readUTF(); // read the reply from the server
             System.out.println("Received: " + receivedMsg);
         } catch (IOException e) {

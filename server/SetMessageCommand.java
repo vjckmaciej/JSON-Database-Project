@@ -1,18 +1,20 @@
 package server;
 
+import java.util.Map;
+
 public class SetMessageCommand implements Command {
     private Database database;
-    private int index;
+    private String key;
     private String message;
 
-    public SetMessageCommand(Database database, int index, String message) {
+    public SetMessageCommand(Database database, String key, String message) {
         this.database = database;
-        this.index = index;
+        this.key = key;
         this.message = message;
     }
 
     @Override
-    public String execute() {
-        return database.setMessage(this.index, this.message);
+    public Map<String, String> execute() {
+        return database.setMessage(this.key, this.message);
     }
 }

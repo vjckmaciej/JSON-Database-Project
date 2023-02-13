@@ -1,5 +1,7 @@
 package server;
 
+import java.util.Map;
+
 public class DatabaseController {
     private Command command;
 
@@ -7,7 +9,7 @@ public class DatabaseController {
         this.command = command;
     }
 
-    public String executeCommand() {
+    public Map<String, String> executeCommand() {
         return command.execute();
     }
 }
