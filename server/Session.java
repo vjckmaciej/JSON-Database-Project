@@ -1,6 +1,8 @@
 package server;
 
 import com.google.gson.Gson;
+import server.Commands.*;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -26,7 +28,7 @@ public class Session implements Runnable {
             String requestJSON = input.readUTF();
             System.out.println("Received: " + requestJSON);
             Gson gson = new Gson();
-            MessageCommand messageCommand = gson.fromJson(requestJSON, MessageCommand.class);
+            Request messageCommand = gson.fromJson(requestJSON, Request.class);
             switch (messageCommand.getType()) {
                 case "set":
                     databaseController.setCommand(new SetMessageCommand(database, messageCommand.getKey(), messageCommand.getValue()));
@@ -45,7 +47,6 @@ public class Session implements Runnable {
                     break;
             }
             String outputParameters = gson.toJson(databaseController.executeCommand());
-            System.out.println(outputParameters);
             output.writeUTF(outputParameters);
         } catch (IOException e) {
             e.printStackTrace();

@@ -1,7 +1,7 @@
 package server;
 
-import java.util.Map;
+import com.google.gson.JsonObject;
 
 public interface Command {
-    Map<String, String> execute();
+    JsonObject execute();
 }

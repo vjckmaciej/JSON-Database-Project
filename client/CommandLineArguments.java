@@ -2,18 +2,17 @@ package client;
 
 import com.beust.jcommander.Parameter;
 import com.google.gson.Gson;
-import com.google.gson.JsonParser;
 import java.io.IOException;
-import java.io.Reader;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class CommandLineArguments {
+    @Parameter(names= "-in", description = "name of file with containing request")
+    public String fileName;
     @Parameter(names= "-t", description = "set/get/delete/exit")
-    public String crudOperation;
+    public String type;
 
     @Parameter(names= "-k", description = "key")
     public String key;
@@ -21,15 +20,12 @@ public class CommandLineArguments {
     @Parameter(names= "-v", description = "value")
     public String value;
 
-    @Parameter(names= "-in", description = "name of file with containing request")
-    public String fileName;
-
-    public String getCrudOperation() {
-        return crudOperation;
+    public String getType() {
+        return type;
     }
 
-    public void setCrudOperation(String crudOperation) {
-        this.crudOperation = crudOperation;
+    public void setType(String crudOperation) {
+        this.type = crudOperation;
     }
 
     public String getKey() {
@@ -48,9 +44,6 @@ public class CommandLineArguments {
         this.fileName = fileName;
     }
 
-    private String readFromFile(String path) throws IOException {
-        return new String(Files.readAllBytes(Paths.get(path)));
-    }
 
     public String getValue() {
         return value;
@@ -58,6 +51,11 @@ public class CommandLineArguments {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+
+    private String readFromFile(String path) throws IOException {
+        return new String(Files.readAllBytes(Paths.get(path)));
     }
 
     public String toJson() {
@@ -71,21 +69,9 @@ public class CommandLineArguments {
         }
 
         Map<String, String> map = new LinkedHashMap<>();
-        map.put("type", this.crudOperation);
-        map.put("key", this.key);
-        map.put("value", this.value);
+        map.put("type", this.type);
+        map.put("key", String.valueOf(this.key));
+        map.put("value", String.valueOf(this.value));
         return new Gson().toJson(map);
-    }
-
-    @Override
-    public String toString() {
-        if (fileName != null) {
-            try (Reader reader = Files.newBufferedReader(Path.of("src/client/data/" + fileName))) {
-                return JsonParser.parseReader(reader).getAsJsonObject().toString();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return new Gson().toJson(this);
     }
 }

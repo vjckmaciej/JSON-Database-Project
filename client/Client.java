@@ -12,7 +12,6 @@ public class Client {
              DataOutputStream output = new DataOutputStream(socket.getOutputStream()))
         {
             System.out.println("Client started!");
-
             output.writeUTF(dataToSend);
             System.out.println("Sent: " + dataToSend);
             System.out.println("Received: " + input.readUTF());

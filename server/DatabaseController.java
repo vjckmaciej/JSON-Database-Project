@@ -1,6 +1,6 @@
 package server;
 
-import java.util.Map;
+import com.google.gson.JsonObject;
 
 public class DatabaseController {
     private Command command;
@@ -9,7 +9,7 @@ public class DatabaseController {
         this.command = command;
     }
 
-    public Map<String, String> executeCommand() {
+    public JsonObject executeCommand() {
         return command.execute();
     }
 }
